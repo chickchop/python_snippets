@@ -43,12 +43,12 @@ def remove_duplicate_activity(in_file_path, out_file_path, case_id_idx, activity
     
     parameters
     -------------------------------
-    in_file_path : strings / header와 reader의 형태로 존재하는 raw log file형태 / raw log file 경로
-    out_file_path : strings / header와 reader의 형태로 존재하는 raw log file형태 / 새로 작성될 raw log file 경로
-    encoding : stirngs /    / raw log file을 읽어드릴 때 encoding 방법
+    in_file_path : string / header와 reader의 형태로 존재하는 raw log file형태 / raw log file 경로
+    out_file_path : string / header와 reader의 형태로 존재하는 raw log file형태 / 새로 작성될 raw log file 경로
     case_id_idx : int /   / case id 열 위치
-    timestamp_idx : int /    / timestamp 열 위치
     activity_idx : int /    / activity 열 위치
+    timestamp_idx : int /    / timestamp 열 위치
+    encoding : stirng /    / raw log file을 읽어드릴 때 encoding 방법
     '''
     df = list()
     rows = list()
@@ -82,12 +82,12 @@ def insert_start_end_time(in_file_path, out_file_path, case_id_idx, activity_idx
 
     parameters
     -------------------------------
-    in_file_path : strings / header와 reader의 형태로 존재하는 raw log file형태 / raw log file 경로
-    out_file_path : strings / header와 reader의 형태로 존재하는 raw log file형태 / 새로 작성될 raw log file 경로
-    encoding : stirngs /    / raw log file을 읽어드릴 때 encoding 방법
+    in_file_path : string / header와 reader의 형태로 존재하는 raw log file형태 / raw log file 경로
+    out_file_path : string / header와 reader의 형태로 존재하는 raw log file형태 / 새로 작성될 raw log file 경로
     case_id_idx : int /   / case id 열 위치
-    timestamp_idx : int /    / timestamp 열 위치
     activity_idx : int /    / activity 열 위치
+    timestamp_idx : int /    / timestamp 열 위치
+    encoding : stirng /    / raw log file을 읽어드릴 때 encoding 방법
     '''
     fw = csv.writer(open(out_file_path, "w", newline=''))
 
