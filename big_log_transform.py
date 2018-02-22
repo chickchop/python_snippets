@@ -13,7 +13,20 @@ import time
 import csv
 from operator import itemgetter,attrgetter
 
-def _remove_duplicate_activity(in_file_path, out_file_path, encoding='utf-8', case_id='CaseID', timestamp='Timestamp', activity='Activity'):
+def remove_duplicate_activity_by_pandas(in_file_path, out_file_path, encoding='utf-8', case_id='CaseID', timestamp='Timestamp', activity='Activity'):
+    '''
+    케이스당 중복되는 엑티비티를 삭제하는 함수. pandas를 이용
+    
+    parameters
+    -------------------------------
+    in_file_path : string / header와 reader의 형태로 존재하는 raw log file형태 / raw log file 경로
+    out_file_path : string / header와 reader의 형태로 존재하는 raw log file형태 / 새로 작성될 raw log file 경로
+    case_id_idx : int /   / case id 열 위치
+    activity_idx : int /    / activity 열 위치
+    timestamp_idx : int /    / timestamp 열 위치
+    encoding : stirng /    / raw log file을 읽어드릴 때 encoding 방법
+    '''
+    
     df = pd.read_csv(in_file_path, encoding= encoding)
     df.sort_values(by=[case_id,timestamp]).drop_duplicates(keep=False)
     k = 1
