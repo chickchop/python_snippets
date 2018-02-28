@@ -15,7 +15,7 @@ from operator import itemgetter,attrgetter
 
 def remove_duplicate_activity_by_pandas(in_file_path, out_file_path, encoding='utf-8', case_id='CaseID', timestamp='Timestamp', activity='Activity'):
     '''
-    케이스당 중복되는 엑티비티를 삭제하는 함수. pandas를 이용
+    케이스당 연속되는 엑티비티를 중복으로 보고 삭제하는 함수. pandas를 이용
     
     parameters
     -------------------------------
@@ -52,7 +52,7 @@ def progressBar(value, endvalue, bar_length=20):
 
 def remove_duplicate_activity(in_file_path, out_file_path, case_id_idx, activity_idx, timestamp_idx, encoding='utf-8'):
     '''
-    케이스당 중복되는 엑티비티를 삭제하는 함수.pandas를 이용할 경우 낭비되는 메모리와 느린 속도 개선.
+    케이스당 연속되는 엑티비티를 중복으로 보고 삭제하는 함수.pandas를 이용할 경우 낭비되는 메모리와 느린 속도 개선.
     
     parameters
     -------------------------------
@@ -145,5 +145,5 @@ def insert_start_end_time(in_file_path, out_file_path, case_id_idx, activity_idx
 
 
 if __name__ == '__main__':
-    remove_duplicate_activity("./random_data10.csv", "sorted_out.csv")
-    insert_start_end_time("./sorted_out.csv", "start_end_out.csv")
+    remove_duplicate_activity("C:\\Users\\ko\\Desktop\\hynix python analyze\\data\\random_data10.csv", "C:\\Users\\ko\\Desktop\\hynix python analyze\\data\\sorted_out.csv",0,1,3,'utf-8')
+    insert_start_end_time("C:\\Users\\ko\\Desktop\\hynix python analyze\\data\\sorted_out.csv", "C:\\Users\\ko\\Desktop\\hynix python analyze\\data\\start_end_out.csv",0,1,3,'utf-8')
