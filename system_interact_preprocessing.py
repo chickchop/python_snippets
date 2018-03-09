@@ -44,9 +44,10 @@ def remove_duplicate_activity_by_pandas(in_file_path, case_id, timestamp, activi
                 if df[activity].iloc[k] == df[activity].iloc[k+1]:
                     pass
                 else:
-                    df.drop(df.index[k], inplace=True)
-                    k = k - 1
+                    drop_list.append(df.index[k])
+                    
         k = k + 1
+    df.drop(drop_list, inplace=True)
 
     df.to_csv(out_file_path, encoding = encoding, index=False)   
 
