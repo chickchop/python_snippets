@@ -164,7 +164,7 @@ def fill_null_activity_(file_path, activity, fill_data, encoding='utf-8'):
 
     df.to_csv(file_path, encoding = encoding, index=False)
 
-def case_modeling_(in_file_path, out_file_path, old_case_id, new_case_id, checking_data, timestamp, encoding = "utf-8"):
+def case_modeling_(in_file_path, out_file_path, old_case_id, new_case_id, checking_data, timestamp, regex_var, encoding = "utf-8"):
     '''
     다른 case이지만 log상에서 구별이 되지 않아 하나의 case로 취급될 경우, log를 이용하여 서로 다른 case로 구분되도록 모델링 하는 함수
     pandas이용
@@ -177,6 +177,7 @@ def case_modeling_(in_file_path, out_file_path, old_case_id, new_case_id, checki
     new_case_id : string /   / 새로 작성될 case id 컬럼 명
     checking_data : string /    / case를 나누기 위한 log 데이터 컬럼 명
     timestamp : string /    / timestamp 컬럼 명
+    regex_var : string / r("") 형태의 정규 표현식 / checking_data column의 log중 case를 구별 할 수 있는 log를 찾아내기 위한 정규 표현식
     encoding : stirng /    / raw log file을 읽어드릴 때 encoding 방법
     '''
     #data import and sort
@@ -198,7 +199,8 @@ def case_modeling_(in_file_path, out_file_path, old_case_id, new_case_id, checki
     ref_time = dt2 - dt1
 
     #find checking data
-    check_list = df[checking_data].str.match(r'(.*FxApp)|(.*InitApp)')
+    #check_list = df[checking_data].str.match(r'(.*FxApp)|(.*InitApp)')
+    check_list = df[checking_data].str.match(regex_var)
 
     #new case insert
     flag = 0
