@@ -14,12 +14,15 @@ import csv
 from operator import itemgetter,attrgetter
 import datetime
 
-def progressBar(value, endvalue, bar_length=20):
+
+def progress_bar(value, endvalue, bar_length=20):
+
     percent = float(value) / endvalue
     arrow = '-' * int(round(percent * bar_length)-1) + '>'
     spaces = ' ' * (bar_length - len(arrow))
     sys.stdout.write("\rPercent: [{0}] {1}%".format(arrow + spaces, int(round(percent * 100))))
     sys.stdout.flush()
+
 
 def remove_duplicate_activity_by_pandas(in_file_path, case_id, timestamp, activity, out_file_path, encoding='utf-8'):
     '''
@@ -37,6 +40,7 @@ def remove_duplicate_activity_by_pandas(in_file_path, case_id, timestamp, activi
     
     df = pd.read_csv(in_file_path, encoding= encoding)
     df.sort_values(by=[case_id,timestamp], inplace= True)
+    drop_list = list()
     k = 1
     while k < len(df):
         if df[case_id].iloc[k] == df[case_id].iloc[k-1]:
@@ -164,6 +168,7 @@ def fill_null_activity_(file_path, activity, fill_data, encoding='utf-8'):
 
     df.to_csv(file_path, encoding = encoding, index=False)
 
+
 def case_modeling_(in_file_path, out_file_path, old_case_id, new_case_id, checking_data, timestamp, regex_var, encoding = "utf-8"):
     '''
     다른 case이지만 log상에서 구별이 되지 않아 하나의 case로 취급될 경우, log를 이용하여 서로 다른 case로 구분되도록 모델링 하는 함수
@@ -180,7 +185,7 @@ def case_modeling_(in_file_path, out_file_path, old_case_id, new_case_id, checki
     regex_var : string / r("") 형태의 정규 표현식 / checking_data column의 log중 case를 구별 할 수 있는 log를 찾아내기 위한 정규 표현식
     encoding : stirng /    / raw log file을 읽어드릴 때 encoding 방법
     '''
-    #data import and sort
+    # data import and sort
     date_parser = lambda x: pd.datetime.strptime(x, '%Y%m%d %H:%M:%S')
     df = pd.read_csv(in_file_path, encoding= encoding, dtype = {old_case_id : str},parse_dates=[timestamp], date_parser=date_parser)
     df.sort_values(by=[old_case_id, timestamp], inplace = True)
@@ -188,21 +193,20 @@ def case_modeling_(in_file_path, out_file_path, old_case_id, new_case_id, checki
     new_case_id_idx = df.columns.get_loc(new_case_id)
     timestamp_idx = df.columns.get_loc(timestamp)
 
-
-    #temp data set
+    # temp data set
     tmp_var_time = df.iloc[0, timestamp_idx]
     tmp_var_id = df.iloc[0, old_case_id_idx]+ '_'+tmp_var_time.strftime('%Y%m%d %H:%M:%S')
 
-    #reference time set
+    # reference time set
     dt1 = datetime.datetime(1988, 9, 16, 0, 0 ,0)
     dt2 = datetime.datetime(1988, 9, 16, 6, 0, 0)
     ref_time = dt2 - dt1
 
-    #find checking data
-    #check_list = df[checking_data].str.match(r'(.*FxApp)|(.*InitApp)')
+    # find checking data
+    # check_list = df[checking_data].str.match(r'(.*FxApp)|(.*InitApp)')
     check_list = df[checking_data].str.match(regex_var)
 
-    #new case insert
+    # new case insert
     flag = 0
     for k in check_list:
         if k:
@@ -216,10 +220,10 @@ def case_modeling_(in_file_path, out_file_path, old_case_id, new_case_id, checki
             df.iloc[flag, new_case_id_idx] = tmp_var_id
         flag += 1
 
-    #export
+    # export
     df.to_csv(out_file_path, encoding = encoding, index=False)
 
+
 if __name__ == '__main__':
-    #remove_duplicate_activity("C:\\Users\\ko\\Desktop\\hynix analyze\\data\\random_data10.csv", "C:\\Users\\ko\\Desktop\\hynix analyze\\data\\sorted_out.csv",0,1,3,'utf-8')
-    #insert_start_end_time("C:\\Users\\ko\\Desktop\\hynix analyze\\data\\sorted_out.csv", "C:\\Users\\ko\\Desktop\\hynix analyze\\data\\start_end_out.csv",0,1,3,'utf-8')
-    #fill_null_activity_by_pandas("C:\\Users\\ko\\Desktop\\hynix analyze\\data\\random_data10.csv", "Activity", "Resource")
+    remove_duplicate_activity("C:\\Users\\ko\\Desktop\\hynix analyze\\data\\random_data10.csv", "C:\\Users\\ko\\Desktop\\hynix analyze\\data\\sorted_out.csv",0,1,3,'utf-8')
+    # insert_start_end_time("C:\\Users\\ko\\Desktop\\hynix analyze\\data\\sorted_out.csv", "C:\\Users\\ko\\Desktop\\hynix analyze\\data\\start_end_out.csv",0,1,3,'utf-8')
