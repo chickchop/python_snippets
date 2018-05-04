@@ -1,33 +1,32 @@
-def csv_split():
-    n_div_cnt = 200000
-
-    file_path = "D:\\"
-    file_name = "log_data"
-    file_exe = ".csv"
-
-    file_folder = "div_file\\"
-    
-    dir_name = file_path+file_folder
+def csv_split(n_div_cnt,file_path,file_name,div_file_folder,file_exe=".csv",encoding="utf-8"):
+    """
+    대용량 파일을 분할하기 위한 함수.
+    분할된 파일은 따로 분할 폴더를 만들어 그 안에 숫자가 붙어서 저장된다.
+    -------------------------------------------------------
+    :param n_div_cnt: int /       / 분할된 파일에 저장될 row수
+    :param file_path: str /       / 분할할 파일이 저장된 파일이 위치한 폴더 경로
+    :param file_name: str /       / 분할하기 위한 대용량 파일 명
+    :param div_file_folder: str /       / 분할된 파일이 저장될 폴더 명
+    :param file_exe: str /       / 분할할 파일의 확장자
+    :param encoding: str /       / 인코딩 방식
+    """
+    dir_name = file_path+div_file_folder
     if not os.path.isdir(dir_name):
         os.mkdir(dir_name)
 
     file_idx = 0
     n_line_cnt = 0
-
-    with open(file_path + file_name+file_exe, "r", encoding='utf-8') as f:
-        g = open(dir_name + file_name+str(file_idx)+file_exe,'w', encoding='utf-8')
+    with open(file_path + file_name+file_exe, "r", encoding=encoding) as f:
+        g = open(dir_name + file_name+str(file_idx)+file_exe,'w', encoding=encoding)
         while True:
             line = f.readline()
-
             if not line:
                 break
-
             if n_line_cnt == n_div_cnt:
                 g.close()
                 file_idx += 1
                 n_line_cnt = 0
-                g = open(dir_name + file_name+str(file_idx)+file_exe,'w', encoding='utf-8') 
-
+                g = open(dir_name + file_name+str(file_idx)+file_exe,'w', encoding=encoding) 
             n_line_cnt += 1
             g.write(line)
         g.close()
