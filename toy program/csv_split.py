@@ -15,7 +15,7 @@ def csv_split():
     n_line_cnt = 0
 
     with open(file_path + file_name+file_exe, "r", encoding='utf-8') as f:
-        g = open(dir_name + file_name+file_idx+file_exe,'w', encoding='utf-8')
+        g = open(dir_name + file_name+str(file_idx)+file_exe,'w', encoding='utf-8')
         while True:
             line = f.readline()
 
@@ -26,7 +26,7 @@ def csv_split():
                 g.close()
                 file_idx += 1
                 n_line_cnt = 0
-                g = open(dir_name + file_name+file_idx+file_exe,'w', encoding='utf-8') 
+                g = open(dir_name + file_name+str(file_idx)+file_exe,'w', encoding='utf-8') 
 
             n_line_cnt += 1
             g.write(line)
