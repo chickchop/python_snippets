@@ -56,14 +56,14 @@ def remove_duplicate_activity_by_pandas(df, case_id, timestamp, activity):
     return df
 
 
-def remove_duplicate_activity(in_file_path, out_file_path, case_id_idx, activity_idx, timestamp_idx, encoding='utf-8'):
+def remove_duplicate_activity(in_file, out_file, case_id_idx, activity_idx, timestamp_idx, encoding='utf-8'):
     """
     케이스당 연속되는 엑티비티를 중복으로 보고 삭제하는 함수.pandas를 이용할 경우 낭비되는 메모리와 느린 속도 개선.
 
     parameters
     -------------------------------
-    in_file_path : string / header와 reader의 형태로 존재하는 raw log file형태 / raw log file 경로
-    out_file_path : string / header와 reader의 형태로 존재하는 raw log file형태 / 새로 작성될 raw log file 경로
+    in_file : string / header와 reader의 형태로 존재하는 raw log file형태 / raw log file 경로
+    out_file : string / header와 reader의 형태로 존재하는 raw log file형태 / 새로 작성될 raw log file 경로
     case_id_idx : int /   / case id 열 위치
     activity_idx : int /    / activity 열 위치
     timestamp_idx : int /    / timestamp 열 위치
@@ -71,7 +71,7 @@ def remove_duplicate_activity(in_file_path, out_file_path, case_id_idx, activity
     """
     df = list()
     rows = list()
-    with open(in_file_path, "r", encoding=encoding) as csv_file:
+    with open(in_file, "r", encoding=encoding) as csv_file:
         reader = csv.reader(csv_file, delimiter=',')
         header = next(reader)
         for row in reader:
@@ -82,7 +82,7 @@ def remove_duplicate_activity(in_file_path, out_file_path, case_id_idx, activity
         df.append(header)
         df.extend(rows)
 
-        fw = csv.writer(open(out_file_path, "w", newline=''))
+        fw = csv.writer(open(out_file, "w", newline=''))
 
         k = 0
         while k < len(df):
@@ -95,22 +95,22 @@ def remove_duplicate_activity(in_file_path, out_file_path, case_id_idx, activity
             k = k + 1
 
 
-def insert_start_end_time(in_file_path, out_file_path, case_id_idx, activity_idx, timestamp_idx, encoding='utf-8'):
+def insert_start_end_time(in_file, out_file, case_id_idx, activity_idx, timestamp_idx, encoding='utf-8'):
     """
     케이스에 timestamp 한가지만 존재하는 경우 시작시간과 종료시간 timestamp를 만들어주는 함수
 
     parameters
     -------------------------------
-    in_file_path : string / header와 reader의 형태로 존재하는 raw log file형태 / raw log file 경로
-    out_file_path : string / header와 reader의 형태로 존재하는 raw log file형태 / 새로 작성될 raw log file 경로
+    in_file : string / header와 reader의 형태로 존재하는 raw log file형태 / raw log file 경로
+    out_file : string / header와 reader의 형태로 존재하는 raw log file형태 / 새로 작성될 raw log file 경로
     case_id_idx : int /   / case id 열 위치
     activity_idx : int /    / activity 열 위치
     timestamp_idx : int /    / timestamp 열 위치
     encoding : string /    / raw log file을 읽어드릴 때 encoding 방법
     """
-    fw = csv.writer(open(out_file_path, "w", newline=''))
+    fw = csv.writer(open(out_file, "w", newline=''))
 
-    with open(in_file_path, "r", encoding=encoding) as csv_file:
+    with open(in_file, "r", encoding=encoding) as csv_file:
         reader = csv.reader(csv_file, delimiter=',')
         k = 0
         prev_row = ''
