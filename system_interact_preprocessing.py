@@ -172,7 +172,7 @@ def fill_null_activity_(df, activity, fill_data):
     return df
 
 
-def case_modeling_(df, old_case_id, new_case_id, checking_data, timestamp, regex_var):
+def case_modeling_(df, old_case_id, new_case_id, checking_col, timestamp, regex_var):
     """
     다른 case이지만 log상에서 구별이 되지 않아 하나의 case로 취급될 경우, log를 이용하여 서로 다른 case로 구분되도록 모델링 하는 함수
     pandas이용
@@ -182,9 +182,9 @@ def case_modeling_(df, old_case_id, new_case_id, checking_data, timestamp, regex
     df : DataFrame /         / 처리되어야 할 데이터 프레임
     old_case_id : string /   / case id 컬럼 명
     new_case_id : string /   / 새로 작성될 case id 컬럼 명
-    checking_data : string /    / case를 나누기 위한 log 데이터 컬럼 명
+    checking_col : string /    / case를 나누기 위한 log 데이터 컬럼 명
     timestamp : string /    / timestamp 컬럼 명
-    regex_var : string / r("") 형태의 정규 표현식 / checking_data column의 log중 case를 구별 할 수 있는 log를 찾아내기 위한 정규 표현식
+    regex_var : string / r("") 형태의 정규 표현식 / checking_col column의 log중 case를 구별 할 수 있는 log를 찾아내기 위한 정규 표현식
     
     returns
     --------------------------------
@@ -208,8 +208,8 @@ def case_modeling_(df, old_case_id, new_case_id, checking_data, timestamp, regex
     ref_time = dt2 - dt1
 
     # find checking data
-    # check_list = df[checking_data].str.match(r'(.*FxApp)|(.*InitApp)')
-    check_list = df[checking_data].str.match(regex_var)
+    # check_list = df[checking_col].str.match(r'(.*FxApp)|(.*InitApp)')
+    check_list = df[checking_col].str.match(regex_var)
 
     # new case insert
     flag = 0
@@ -233,21 +233,21 @@ def case_modeling_(df, old_case_id, new_case_id, checking_data, timestamp, regex
     return df
 
 
-def drop_certain_event_(df, checking_data, regex_var):
+def drop_certain_event_(df, checking_col, regex_var):
     """
     case에서 필요 없는 activity(e.g. sampleapp, 의미 없는 log)를 제거하는 함수
 
     parameters
     -------------------------------
     df : DataFrame /         / 처리되어야 할 데이터 프레임
-    checking_data : string /    / check를 하기위한 column 명
-    regex_var : string / r("") 형태의 정규 표현식 / checking_data column의 log중 case를 구별 할 수 있는 log를 찾아내기 위한 정규 표현식
+    checking_col : string /    / check를 하기위한 column 명
+    regex_var : string / r("") 형태의 정규 표현식 / checking_col column의 log중 case를 구별 할 수 있는 log를 찾아내기 위한 정규 표현식
 
     returns
     --------------------------------
     df : DataFrame /      / 처리가 완료된 데이터 프레임
     """
-    check_list = df[checking_data].str.match(regex_var)
+    check_list = df[checking_col].str.match(regex_var)
     del_list = list()
     flag = 0
     for k in check_list:
