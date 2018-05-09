@@ -7,19 +7,10 @@ import csv
 import datetime
 import os
 import sys
-from multiprocessing import Pool
 from operator import itemgetter
 
 import numpy as np
 import pandas as pd
-
-
-def progress_bar(value, endvalue, bar_length=20):
-    percent = float(value) / endvalue
-    arrow = '-' * int(round(percent * bar_length) - 1) + '>'
-    spaces = ' ' * (bar_length - len(arrow))
-    sys.stdout.write("\rPercent: [{0}] {1}%".format(arrow + spaces, int(round(percent * 100))))
-    sys.stdout.flush()
 
 
 def remove_duplicate_activity_by_pandas(df, case_id, timestamp, activity):
@@ -242,24 +233,6 @@ def drop_certain_event_(df, checking_col, regex_var):
         flag += 1
 
     df.drop(del_list, 0, inplace=True)
-
-    return df
-
-
-def paralleling_data_frame(df, func):
-    """
-    병렬처리를 멀티코어 방식으로 활용하는 함수
-    -------------------------------------------------------
-    :param df: DataFrame /       /병렬 처리를 하기 위한 데이터 프레임
-    :param func: function /       / 병렬 처리를 적용하기 위한 로직이 있는 함수
-    :return df : DataFrame /       / 병렬 처리가 완료된 후 하나로 합쳐진 데이터 프레임
-    """
-    num_cores = os.cpu_count()
-    df_split = np.array_split(df, num_cores)
-    pool = Pool(num_cores)
-    df = pd.concat(pool.map(func, df_split))
-    pool.close()
-    pool.join()
 
     return df
 
