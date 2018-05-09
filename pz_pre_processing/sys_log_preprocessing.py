@@ -219,3 +219,74 @@ def case_modeling_(df, old_case_id, new_case_id, checking_col, timestamp, regex_
         flag += 1
 
     return df
+
+
+def drop_certain_event_(df, checking_col, regex_var):
+    """
+    case에서 필요 없는 activity(e.g. sampleapp, 의미 없는 log)를 제거하는 함수
+    parameters
+    -------------------------------
+    df : DataFrame /         / 처리되어야 할 데이터 프레임
+    checking_col : string /    / check를 하기위한 column 명
+    regex_var : string / r("") 형태의 정규 표현식 / checking_col column의 log중 case를 구별 할 수 있는 log를 찾아내기 위한 정규 표현식
+    returns
+    --------------------------------
+    df : DataFrame /      / 처리가 완료된 데이터 프레임
+    """
+    check_list = df[checking_col].str.match(regex_var)
+    del_list = list()
+    flag = 0
+    for k in check_list:
+        if k:
+            del_list.append(flag)
+        flag += 1
+
+    df.drop(del_list, 0, inplace=True)
+
+    return df
+
+
+def paralleling_data_frame(df, func):
+    """
+    병렬처리를 멀티코어 방식으로 활용하는 함수
+    -------------------------------------------------------
+    :param df: DataFrame /       /병렬 처리를 하기 위한 데이터 프레임
+    :param func: function /       / 병렬 처리를 적용하기 위한 로직이 있는 함수
+    :return df : DataFrame /       / 병렬 처리가 완료된 후 하나로 합쳐진 데이터 프레임
+    """
+    num_cores = os.cpu_count()
+    df_split = np.array_split(df, num_cores)
+    pool = Pool(num_cores)
+    df = pd.concat(pool.map(func, df_split))
+    pool.close()
+    pool.join()
+
+    return df
+
+
+
+
+# def big_log_transform(file_path, file_name, chunksize=10 ** 6, encoding='utf-8', case_id='CaseID',
+#                       timestamp='Timestamp', activity='Activity'):
+#     file_size = os.path.getsize(file_path + file_name)
+#     progress_size = 0
+#     for chunk in pd.read_csv(file_path + file_name, encoding=encoding, chunksize=chunksize):
+#         flag = 0
+#         progress_size = progress_size + chunksize
+#         progressBar(progress_size, file_size)
+#
+#         chunk = chunk.sort_values(by=[case_id, timestamp])
+#         k = 1
+#         while k < len(chunk):
+#             if chunk[case_id].iloc[k] == chunk[case_id].iloc[k - 1]:
+#                 if chunk[activity].iloc[k] == chunk[activity].iloc[k - 1]:
+#                     if chunk[activity].iloc[k] == chunk[activity].iloc[k + 1]:
+#                         pass
+#                     else:
+#                         chunk.drop(chunk.index[k], inplace=True)
+#                         k = k - 1
+#             k = k + 1
+#
+#         chunk.to_csv(file_path + "\\outdata" + str(flag) + file_name, encoding='utf-8', index=False)
+#         flag = flag + 1
+#     print("--- %s seconds ---" % (time.time() - start_time))    
