@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import os
+from multiprocessing import Pool
 
 def paralleling_data_frame(df, func):
     """
