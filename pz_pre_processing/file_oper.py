@@ -23,7 +23,7 @@ def change_file_name(file_path_name,split_point,str_to_change):
 
 def find_flag_in_dat_file():
     flag2_dat_data = []
-    #find floder list
+    ##############find floder list################
     for dir in os.listdir("C:\\Users\\ko\\Desktop\\180825"):
         for file_name in os.listdir("C:\\Users\\ko\\Desktop\\180825\\"+dir):
             #open file

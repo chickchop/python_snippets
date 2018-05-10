@@ -5,12 +5,7 @@ Created on 2018.02.14
 """
 import csv
 import datetime
-import os
-import sys
 from operator import itemgetter
-
-import numpy as np
-import pandas as pd
 
 
 def remove_duplicate_activity_by_pandas(df, case_id, timestamp, activity):
@@ -172,30 +167,30 @@ def case_modeling_(df, old_case_id, new_case_id, checking_col, timestamp, regex_
     --------------------------------
     df : DataFrame /      / case modeling이 완료된 데이터 프레임
     """
-    ################ data import and sort ######################
+    # data import and sort
     df.sort_values(by=[old_case_id, timestamp], inplace=True)
     old_case_id_idx = df.columns.get_loc(old_case_id)
     new_case_id_idx = df.columns.get_loc(new_case_id)
     timestamp_idx = df.columns.get_loc(timestamp)
 
-    ############ temp data set #################
+    # temp data set
     tmp_var_time = df.iloc[0, timestamp_idx]
     tmp_var_id = df.iloc[0, old_case_id_idx] + '_' + tmp_var_time.strftime('%Y%m%d %H:%M:%S')
 
-    ############ reference time set ################
+    # reference time set
     dt1 = datetime.datetime(1988, 9, 16, 0, 0, 0)
     dt2 = datetime.datetime(1988, 9, 16, 6, 0, 0)
     ref_time = dt2 - dt1
 
-    ################ find checking data ###############
+    # find checking data
     check_list = df[checking_col].str.match(regex_var)
 
-    ################# new case insert ##########
+    # new case insert
     flag = 0
     for k in check_list:
         if k:
-            if df.iloc[flag, timestamp_idx] - tmp_var_time > ref_time and df.iloc[flag, old_case_id_idx] == df.iloc[
-                flag - 1, old_case_id_idx]:
+            if df.iloc[flag, timestamp_idx] - tmp_var_time > ref_time and \
+                    df.iloc[flag, old_case_id_idx] == df.iloc[flag - 1, old_case_id_idx]:
                 tmp_var_time = df.iloc[flag, timestamp_idx]
                 tmp_var_id = df.iloc[flag, old_case_id_idx] + '_' + tmp_var_time.strftime('%Y%m%d %H:%M:%S')
                 df.iloc[flag, new_case_id_idx] = tmp_var_id
@@ -236,9 +231,6 @@ def drop_certain_event_(df, checking_col, regex_var):
 
     return df
 
-
-
-
 # def big_log_transform(file_path, file_name, chunksize=10 ** 6, encoding='utf-8', case_id='CaseID',
 #                       timestamp='Timestamp', activity='Activity'):
 #     file_size = os.path.getsize(file_path + file_name)
@@ -262,4 +254,4 @@ def drop_certain_event_(df, checking_col, regex_var):
 #
 #         chunk.to_csv(file_path + "\\outdata" + str(flag) + file_name, encoding='utf-8', index=False)
 #         flag = flag + 1
-#     print("--- %s seconds ---" % (time.time() - start_time))    
+#     print("--- %s seconds ---" % (time.time() - start_time))
