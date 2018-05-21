@@ -35,7 +35,7 @@ def csv_split(n_div_cnt, file_path, file_name, div_file_folder, file_exe=".csv",
     file_idx = 0
     n_line_cnt = 0
     with open(file_path + file_name + file_exe, "r", encoding=encoding) as f:
-        g = open(dir_name + file_name + str(file_idx) + file_exe, 'w', encoding=encoding)
+        g = open(dir_name + file_name + "_" + str(file_idx) + file_exe, 'w', encoding=encoding)
         while True:
             line = f.readline()
             if not line:
@@ -44,7 +44,7 @@ def csv_split(n_div_cnt, file_path, file_name, div_file_folder, file_exe=".csv",
                 g.close()
                 file_idx += 1
                 n_line_cnt = 0
-                g = open(dir_name + file_name + str(file_idx) + file_exe, 'w', encoding=encoding)
+                g = open(dir_name + file_name + "_" + str(file_idx) + file_exe, 'w', encoding=encoding)
             n_line_cnt += 1
             g.write(line)
         g.close()
