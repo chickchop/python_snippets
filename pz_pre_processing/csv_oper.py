@@ -1,7 +1,8 @@
 import os
+import glob
 
 
-def csv_header_add(in_file, encoding, add_line):
+def csv_header_add(in_file, add_line, encoding="UTF-8"):
     """
     header가 없는 CSV파일에 header를 추가시키는 함수
     --------------------------------------------------------------------------
@@ -22,9 +23,9 @@ def csv_split(n_div_cnt, file_path, file_name, div_file_folder, file_exe=".csv",
     분할된 파일은 따로 분할 폴더를 만들어 그 안에 숫자가 붙어서 저장된다.
     -------------------------------------------------------
     :param n_div_cnt: int / 1000000 / 분할된 파일에 저장될 row수
-    :param file_path: str / "D:\\" / 분할할 파일이 저장된 파일이 위치한 폴더 경로
+    :param file_path: str / "D:\\" / 분할할 파일이 저장될 폴더 경로
     :param file_name: str / "log_data" / 분할하기 위한 대용량 파일 명
-    :param div_file_folder: str / "div_file1\\" / 분할된 파일이 저장될 폴더 명
+    :param div_file_folder: str / "div_file\\" / 분할된 파일이 저장될 폴더 명
     :param file_exe: str / ".csv" / 분할할 파일의 확장자
     :param encoding: str / "utf-8" / 인코딩 방식
     """
@@ -48,3 +49,30 @@ def csv_split(n_div_cnt, file_path, file_name, div_file_folder, file_exe=".csv",
             n_line_cnt += 1
             g.write(line)
         g.close()
+
+
+def csv_merge(file_path, out_file_name, regex_var, file_exe=".csv", encoding="UTF-8"):
+    """
+    분할된 파일을 하나로 합치기 위한 함수.
+    분할 폴더의 분할된 csv파일이 하나로 합쳐진다.
+    -------------------------------------------------------
+    :param file_path: str / "D:\\div_file\\" / 분할된 파일이 저장된 폴더 경로
+    :param out_file_name: str / "log_data_201804" / 합쳐진 파일 명
+    :param regex_var: str / "*.csv" / 합칠 파일을 찾아내기 위한 정규표현식
+    :param file_exe: str / ".csv" / 합쳐진 파일 확장자 명
+    :param encoding: str / "utf-8" / 인코딩 방식
+    """
+    files_ = file_path + regex_var
+    flag = True
+    for files_ in glob.glob(files_):
+        with open(files_, "r", encoding=encoding) as f:
+            if flag:
+                lines = f.read()
+                flag = False
+                with open(file_path + out_file_name + file_exe, 'w', encoding=encoding) as g:
+                    g.write(lines)
+            else:
+                lines = f.readlines()[1:]
+                with open(file_path + out_file_name + file_exe, 'a', encoding=encoding) as g:
+                    for line in lines:
+                        g.write(line)
