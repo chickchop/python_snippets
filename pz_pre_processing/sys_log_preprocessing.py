@@ -63,7 +63,7 @@ def remove_duplicate_activity(in_file, out_file, case_id_idx, activity_idx, time
         df.append(header)
         df.extend(rows)
 
-        fw = csv.writer(open(out_file, "w", newline=''))
+        fw = csv.writer(open(out_file, "w", newline='', encoding=encoding))
 
         k = 0
         while k < len(df):
@@ -168,6 +168,7 @@ def case_modeling_(df, old_case_id, new_case_id, checking_col, timestamp, regex_
     df : DataFrame /      / case modeling이 완료된 데이터 프레임
     """
     # data import and sort
+    df[new_case_id] = " "
     df.sort_values(by=[old_case_id, timestamp], inplace=True)
     old_case_id_idx = df.columns.get_loc(old_case_id)
     new_case_id_idx = df.columns.get_loc(new_case_id)
