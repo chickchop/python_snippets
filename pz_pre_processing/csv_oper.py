@@ -64,15 +64,22 @@ def csv_merge(file_path, out_file_name, regex_var, file_exe=".csv", encoding="UT
     """
     files_ = file_path + regex_var
     flag = True
-    for files_ in glob.glob(files_):
-        with open(files_, "r", encoding=encoding) as f:
+    for file_ in glob.glob(files_):
+        with open(file_, "r", encoding=encoding) as f:
             if flag:
                 lines = f.read()
                 flag = False
-                with open(file_path + out_file_name + file_exe, 'w', encoding=encoding) as g:
+                with open(file_path + out_file_name + ".backup", 'w', encoding=encoding) as g:
                     g.write(lines)
             else:
                 lines = f.readlines()[1:]
-                with open(file_path + out_file_name + file_exe, 'a', encoding=encoding) as g:
+                with open(file_path + out_file_name + ".backup", 'a', encoding=encoding) as g:
                     for line in lines:
                         g.write(line)
+
+    for file_ in glob.glob(files_):
+        os.remove(file_)
+    
+    for file_ in glob.glob(file_path  + "*.backup"):
+        new_name = file_.replace(".backup", "")
+        os.rename(file_,new_name+ file_exe)
