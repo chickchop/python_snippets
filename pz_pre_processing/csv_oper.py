@@ -1,5 +1,7 @@
 import os
 import glob
+from tempfile import mkstemp
+from shutil import move
 
 
 def csv_header_add(in_file, add_line, encoding="UTF-8"):
@@ -83,3 +85,35 @@ def csv_merge(file_path, out_file_name, regex_var, file_exe=".csv", encoding="UT
     for file_ in glob.glob(file_path  + "*.backup"):
         new_name = file_.replace(".backup", "")
         os.rename(file_,new_name+ file_exe)
+
+
+def csv_text_replace(file_name,pattern,substr,encoding="utf-8"):
+    """
+    text file 내부의 내용을 한줄 당 바꾸기 위한 함수
+    -------------------------------------------------------
+    :param file_name: str / "E:\\t.txt" /  파일 경로
+    :param pattern: str / "\n" / 바뀌어야 할 문자열.
+    :param substr: str /"',\n'" / 바뀔 내용. 찾아낸 문자열을 이 형태로 바꾼다.
+    :param encoding: str / "utf-8" / 인코딩 방식
+    """
+    #create temp file 
+    tmp_file, abs_path = mkstemp()
+    
+    #replace data
+    with open(file_name, 'r', encoding=encoding) as f:
+        with open(tmp_file, 'w', encoding=encoding) as g:
+            while True:
+                line = f.readline()
+                
+                if not line:
+                    break
+                
+                g.write(line.replace(pattern,substr))
+    
+    #del old file and move new file
+    os.remove(file_name)
+    move(abs_path, file_name)
+                
+
+if __name__ == '__main__':
+    csv_text_replace("E:\\t.txt","\n","',\n'")
