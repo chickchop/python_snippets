@@ -1,3 +1,4 @@
+# coding=utf-8
 """
 시스템 간 분석을 위해 프로 디스커버리를 적용할 때 2 gb 이상의 대용량 log file을 조작하기 위한 모듈
 Created on 2018.06.25
@@ -7,17 +8,18 @@ import csv
 from operator import itemgetter
 import datetime
 
+
 def remove_duplicate_activity_(in_file, out_file, case_id, activity, timestamp, encoding='utf-8'):
     """
     케이스당 연속되는 엑티비티를 중복으로 보고 삭제하는 함수.pandas를 이용할 경우 낭비되는 메모리와 느린 속도 개선.
     parameters
     -------------------------------
-    in_file : string / header와 reader의 형태로 존재하는 raw log file형태 / raw log file 경로
-    out_file : string / header와 reader의 형태로 존재하는 raw log file형태 / 새로 작성될 raw log file 경로
-    case_id_idx : string /   / case id 열 이름
-    activity_idx : string /    / activity 열 이름
-    timestamp_idx : string /    / timestamp 열 이름
-    encoding : string /    / raw log file을 읽어드릴 때 encoding 방법
+    in_file : string / header 와 reader 의 형태로 존재하는 raw log file 형태 / raw log file 경로
+    out_file : string / header 와 reader 의 형태로 존재하는 raw log file 형태 / 새로 작성될 raw log file 경로
+    case_id : string /   / case id 열 이름
+    activity : string /    / activity 열 이름
+    timestamp : string /    / timestamp 열 이름
+    encoding : string /    / raw log file 을 읽어드릴 때 encoding 방법
     """
     df = list()
     rows = list()
@@ -51,8 +53,8 @@ def remove_duplicate_activity_(in_file, out_file, case_id, activity, timestamp, 
 
 def case_modeling_(df, old_case_id, new_case_id, checking_col, timestamp, regex_var):
     """
-    다른 case이지만 log상에서 구별이 되지 않아 하나의 case로 취급될 경우, log를 이용하여 서로 다른 case로 구분되도록 모델링 하는 함수
-    pandas이용
+    다른 case 이지만 log 상에서 구별이 되지 않아 하나의 case 로 취급될 경우, log 를 이용하여 서로 다른 case 로 구분되도록 모델링 하는 함수
+    pandas 이용
     parameters
     -------------------------------
     df : DataFrame /         / 처리되어야 할 데이터 프레임
@@ -104,7 +106,6 @@ def case_modeling_(df, old_case_id, new_case_id, checking_col, timestamp, regex_
         else:
             df.iloc[flag, new_case_id_idx] = tmp_var_id
         flag += 1
-        
         
     print(4)
     return df
