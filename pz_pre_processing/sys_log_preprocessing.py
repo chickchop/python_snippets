@@ -1,5 +1,6 @@
+# coding=utf-8
 """
-시스템 간 분석을 위해 프로 디스커버리를 적용할 때 대용량 log file을 조작하기 위한 모듈
+시스템 간 분석을 위해 프로 디스커버리를 적용할 때 대용량 log file 을 조작하기 위한 모듈
 Created on 2018.02.14
 @author : adam ko
 """
@@ -10,16 +11,13 @@ from operator import itemgetter
 
 def remove_duplicate_activity_(df, case_id, timestamp, activity):
     """
-    케이스당 연속되는 엑티비티를 중복으로 보고 삭제하는 함수. pandas를 이용
-    parameters
+    케이스당 연속되는 엑티비티를 중복으로 보고 삭제하는 함수. pandas 를 이용
     -------------------------------
-    df : DataFrame/   / 처리해야할 데이터 프레임
-    case_id : string /   / case id 열 위치
-    activity : string /    / activity 열 위치
-    timestamp : string /    / timestamp 열 위치
-    returns
-    -------------------------------
-    df : DataFrame/     / 처리 완료된 데이터 프레임
+    :param df : DataFrame/   / 처리해야할 데이터 프레임
+    :param case_id : string /   / case id 열 위치
+    :param activity : string /    / activity 열 위치
+    :param timestamp : string /    / timestamp 열 위치
+    :return df : DataFrame/     / 처리 완료된 데이터 프레임
     """
     df.sort_values(by=[case_id, timestamp], inplace=True)
     drop_list = list()
@@ -40,15 +38,14 @@ def remove_duplicate_activity_(df, case_id, timestamp, activity):
 
 def insert_start_end_time(in_file, out_file, case_id_idx, activity_idx, timestamp_idx, encoding='utf-8'):
     """
-    케이스에 timestamp 한가지만 존재하는 경우 시작시간과 종료시간 timestamp를 만들어주는 함수
-    parameters
+    케이스에 timestamp 한가지만 존재하는 경우 시작시간과 종료시간 timestamp 를 만들어주는 함수
     -------------------------------
-    in_file : string / header와 reader의 형태로 존재하는 raw log file형태 / raw log file 경로
-    out_file : string / header와 reader의 형태로 존재하는 raw log file형태 / 새로 작성될 raw log file 경로
-    case_id_idx : int /   / case id 열 위치
-    activity_idx : int /    / activity 열 위치
-    timestamp_idx : int /    / timestamp 열 위치
-    encoding : string /    / raw log file을 읽어드릴 때 encoding 방법
+    :param in_file : string / header 와 reader 의 형태로 존재하는 raw log file 형태 / raw log file 경로
+    :param out_file : string / header 와 reader 의 형태로 존재하는 raw log file 형태 / 새로 작성될 raw log file 경로
+    :param case_id_idx : int /   / case id 열 위치
+    :param activity_idx : int /    / activity 열 위치
+    :param timestamp_idx : int /    / timestamp 열 위치
+    :param encoding : string /    / raw log file을 읽어드릴 때 encoding 방법
     """
     fw = csv.writer(open(out_file, "w", newline=''))
 
@@ -96,16 +93,13 @@ def insert_start_end_time(in_file, out_file, case_id_idx, activity_idx, timestam
 
 def fill_null_activity_(df, activity, fill_data):
     """
-    케이스당 null 엑티비티가 있을 경우, 특정 칼럼의 데이터를 복사해와 null에 넣어주는 함수
-    pandas를 이용
-    parameters
+    케이스당 null 엑티비티가 있을 경우, 특정 칼럼의 데이터를 복사해와 null 에 넣어주는 함수
+    pandas 를 이용
     -------------------------------
-    df : DataFrame /    / 처리해야할 데이터 프레임
-    activity : string / / activity 컬럼 명
-    fill_data : string /  / activity 컬럼에서 빈 row를 채워주기 위한 data column
-    returns
-    --------------------------------
-    df : DataFrame /       / 처리 완료된 데이터 프레임
+    :param df : DataFrame /    / 처리해야할 데이터 프레임
+    :param activity : string / / activity 컬럼 명
+    :param fill_data : string /  / activity 컬럼에서 빈 row를 채워주기 위한 data column
+    :return df : DataFrame /       / 처리 완료된 데이터 프레임
     """
     df[activity].fillna(df[fill_data], inplace=True)
 
@@ -114,20 +108,16 @@ def fill_null_activity_(df, activity, fill_data):
 
 def case_modeling_(df, old_case_id, new_case_id, checking_col, timestamp, regex_var):
     """
-    다른 case이지만 log상에서 구별이 되지 않아 하나의 case로 취급될 경우, log를 이용하여 서로 다른 case로 구분되도록 모델링 하는 함수
-    pandas이용
-    parameters
+    다른 case 이지만 log 상에서 구별이 되지 않아 하나의 case 로 취급될 경우, log 를 이용하여 서로 다른 case 로 구분되도록 모델링 하는 함수
+    pandas 이용
     -------------------------------
-    df : DataFrame /         / 처리되어야 할 데이터 프레임
-    old_case_id : string /   / case id 컬럼 명
-    new_case_id : string /   / 새로 작성될 case id 컬럼 명
-    checking_col : string /    / case를 나누기 위한 log 데이터 컬럼 명
-    timestamp : string /    / timestamp 컬럼 명
-    regex_var : string / r"(.*FxApp)|(.*InitApp)" / checking_col column의 log중 case를 구별 할 수 있는 log를 찾아내기 위한 정규 표현식
-    
-    returns
-    --------------------------------
-    df : DataFrame /      / case modeling이 완료된 데이터 프레임
+    :param df : DataFrame /         / 처리되어야 할 데이터 프레임
+    :param old_case_id : string /   / case id 컬럼 명
+    :param new_case_id : string /   / 새로 작성될 case id 컬럼 명
+    :param checking_col : string /    / case를 나누기 위한 log 데이터 컬럼 명
+    :param timestamp : string /    / timestamp 컬럼 명
+    :param regex_var : string / r"(.*FxApp)|(.*InitApp)" / checking_col column 의 log 중 case 를 구별 할 수 있는 log 를 찾아내기 위한 정규 표현식
+    :return df : DataFrame /      / case modeling 이 완료된 데이터 프레임
     """
     # data import and sort
     df[new_case_id] = " "
@@ -167,23 +157,19 @@ def case_modeling_(df, old_case_id, new_case_id, checking_col, timestamp, regex_
         else:
             df.iloc[flag, new_case_id_idx] = tmp_var_id
         flag += 1
-        
-        
+
     print(4)
     return df
 
 
 def drop_certain_event_(df, checking_col, regex_var):
     """
-    case에서 필요 없는 activity(e.g. sampleapp, 의미 없는 log)를 제거하는 함수
-    parameters
+    case 에서 필요 없는 activity(e.g. sample app, 의미 없는 log)를 제거하는 함수
     -------------------------------
-    df : DataFrame /         / 처리되어야 할 데이터 프레임
-    checking_col : string /    / check를 하기위한 column 명
-    regex_var : string / r("") 형태의 정규 표현식 / checking_col column의 log중 case를 구별 할 수 있는 log를 찾아내기 위한 정규 표현식
-    returns
-    --------------------------------
-    df : DataFrame /      / 처리가 완료된 데이터 프레임
+    :param df : DataFrame /         / 처리되어야 할 데이터 프레임
+    :param checking_col : string /    / check 를 하기위한 column 명
+    :param regex_var : string / r("") 형태의 정규 표현식 / checking_col column 의 log 중 case 를 구별 할 수 있는 log 를 찾아내기 위한 정규 표현식
+    :return df : DataFrame /      / 처리가 완료된 데이터 프레임
     """
     check_list = df[checking_col].str.match(regex_var)
     del_list = list()

@@ -12,14 +12,13 @@ import datetime
 def remove_duplicate_activity_(in_file, out_file, case_id, activity, timestamp, encoding='utf-8'):
     """
     케이스당 연속되는 엑티비티를 중복으로 보고 삭제하는 함수.pandas를 이용할 경우 낭비되는 메모리와 느린 속도 개선.
-    parameters
     -------------------------------
-    in_file : string / header 와 reader 의 형태로 존재하는 raw log file 형태 / raw log file 경로
-    out_file : string / header 와 reader 의 형태로 존재하는 raw log file 형태 / 새로 작성될 raw log file 경로
-    case_id : string /   / case id 열 이름
-    activity : string /    / activity 열 이름
-    timestamp : string /    / timestamp 열 이름
-    encoding : string /    / raw log file 을 읽어드릴 때 encoding 방법
+    :param in_file : string / header 와 reader 의 형태로 존재하는 raw log file 형태 / raw log file 경로
+    :param out_file : string / header 와 reader 의 형태로 존재하는 raw log file 형태 / 새로 작성될 raw log file 경로
+    :param case_id : string /   / case id 열 이름
+    :param activity : string /    / activity 열 이름
+    :param timestamp : string /    / timestamp 열 이름
+    :param encoding : string /    / raw log file 을 읽어드릴 때 encoding 방법
     """
     df = list()
     rows = list()
@@ -55,18 +54,14 @@ def case_modeling_(df, old_case_id, new_case_id, checking_col, timestamp, regex_
     """
     다른 case 이지만 log 상에서 구별이 되지 않아 하나의 case 로 취급될 경우, log 를 이용하여 서로 다른 case 로 구분되도록 모델링 하는 함수
     pandas 이용
-    parameters
     -------------------------------
-    df : DataFrame /         / 처리되어야 할 데이터 프레임
-    old_case_id : string /   / case id 컬럼 명
-    new_case_id : string /   / 새로 작성될 case id 컬럼 명
-    checking_col : string /    / case를 나누기 위한 log 데이터 컬럼 명
-    timestamp : string /    / timestamp 컬럼 명
-    regex_var : string / r"(.*FxApp)|(.*InitApp)" / checking_col column의 log중 case를 구별 할 수 있는 log를 찾아내기 위한 정규 표현식
-    
-    returns
-    --------------------------------
-    df : DataFrame /      / case modeling이 완료된 데이터 프레임
+    :param df : DataFrame /         / 처리되어야 할 데이터 프레임
+    :param old_case_id : string /   / case id 컬럼 명
+    :param new_case_id : string /   / 새로 작성될 case id 컬럼 명
+    :param checking_col : string /    / case를 나누기 위한 log 데이터 컬럼 명
+    :param timestamp : string /    / timestamp 컬럼 명
+    :param regex_var : string / r"(.*FxApp)|(.*InitApp)" / checking_col column의 log중 case를 구별 할 수 있는 log를 찾아내기 위한 정규 표현식
+    :return df : DataFrame /      / case modeling이 완료된 데이터 프레임
     """
     # data import and sort
     df[new_case_id] = " "

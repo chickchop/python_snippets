@@ -1,12 +1,18 @@
-import os
+# coding=utf-8
+"""
+csv 파일 형태의 log 데이터를 조작하기 위한 함수 모듈
+Created on 2018.07.11
+@author : adam ko
+"""
 import glob
-from tempfile import mkstemp
+import os
 from shutil import move
+from tempfile import mkstemp
 
 
 def csv_header_add(in_file, add_line, encoding="UTF-8"):
     """
-    header가 없는 CSV파일에 header를 추가시키는 함수
+    header 가 없는 CSV 파일에 header 를 추가시키는 함수
     --------------------------------------------------------------------------
     :param in_file: str / "D:\\test\\log_data000.csv" / 파일 위치
     :param encoding: str / 'utf-8' / 인코딩 방식
@@ -56,7 +62,7 @@ def csv_split(n_div_cnt, file_path, file_name, div_file_folder, file_exe=".csv",
 def csv_merge(file_path, out_file_name, regex_var, file_exe=".csv", encoding="UTF-8"):
     """
     분할된 파일을 하나로 합치기 위한 함수.
-    분할 폴더의 분할된 csv파일이 하나로 합쳐진다.
+    분할 폴더의 분할된 csv 파일이 하나로 합쳐진다.
     -------------------------------------------------------
     :param file_path: str / "D:\\div_file\\" / 분할된 파일이 저장된 폴더 경로
     :param out_file_name: str / "log_data_201804" / 합쳐진 파일 명
@@ -81,13 +87,13 @@ def csv_merge(file_path, out_file_name, regex_var, file_exe=".csv", encoding="UT
 
     for file_ in glob.glob(files_):
         os.remove(file_)
-    
-    for file_ in glob.glob(file_path  + "*.backup"):
+
+    for file_ in glob.glob(file_path + "*.backup"):
         new_name = file_.replace(".backup", "")
-        os.rename(file_,new_name+ file_exe)
+        os.rename(file_, new_name + file_exe)
 
 
-def csv_text_replace(file_name,pattern,substr,encoding="utf-8"):
+def csv_text_replace(file_name, pattern, substr, encoding="utf-8"):
     """
     text file 내부의 내용을 한줄 당 바꾸기 위한 함수
     -------------------------------------------------------
@@ -96,24 +102,24 @@ def csv_text_replace(file_name,pattern,substr,encoding="utf-8"):
     :param substr: str /"',\n'" / 바뀔 내용. 찾아낸 문자열을 이 형태로 바꾼다.
     :param encoding: str / "utf-8" / 인코딩 방식
     """
-    #create temp file 
+    # create temp file 
     tmp_file, abs_path = mkstemp()
-    
-    #replace data
+
+    # replace data
     with open(file_name, 'r', encoding=encoding) as f:
         with open(tmp_file, 'w', encoding=encoding) as g:
             while True:
                 line = f.readline()
-                
+
                 if not line:
                     break
-                
-                g.write(line.replace(pattern,substr))
-    
-    #del old file and move new file
+
+                g.write(line.replace(pattern, substr))
+
+    # del old file and move new file
     os.remove(file_name)
     move(abs_path, file_name)
-                
+
 
 if __name__ == '__main__':
-    csv_text_replace("E:\\t.txt","\n","',\n'")
+    csv_text_replace("E:\\t.txt", "\n", "',\n'")
