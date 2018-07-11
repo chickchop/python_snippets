@@ -6,6 +6,7 @@ Created on 2018.02.14
 """
 import csv
 import datetime
+from tqdm import tqdm, trange
 from operator import itemgetter
 
 
@@ -19,9 +20,11 @@ def remove_duplicate_activity_(df, case_id, timestamp, activity):
     :param timestamp : string /    / timestamp 열 위치
     :return df : DataFrame/     / 처리 완료된 데이터 프레임
     """
+    print("step 1")
     df.sort_values(by=[case_id, timestamp], inplace=True)
     drop_list = list()
     k = 1
+    print("step 2")
     while k < len(df):
         if df[case_id].iloc[k] == df[case_id].iloc[k - 1]:
             if df[activity].iloc[k] == df[activity].iloc[k - 1]:
@@ -31,6 +34,7 @@ def remove_duplicate_activity_(df, case_id, timestamp, activity):
                     drop_list.append(df.index[k])
 
         k = k + 1
+        print("")
     df.drop(drop_list, inplace=True)
 
     return df
@@ -119,29 +123,31 @@ def case_modeling_(df, old_case_id, new_case_id, checking_col, timestamp, regex_
     :param regex_var : string / r"(.*FxApp)|(.*InitApp)" / checking_col column 의 log 중 case 를 구별 할 수 있는 log 를 찾아내기 위한 정규 표현식
     :return df : DataFrame /      / case modeling 이 완료된 데이터 프레임
     """
+    print("step 1")
     # data import and sort
     df[new_case_id] = " "
     df.sort_values(by=[old_case_id, timestamp], inplace=True)
     old_case_id_idx = df.columns.get_loc(old_case_id)
     new_case_id_idx = df.columns.get_loc(new_case_id)
     timestamp_idx = df.columns.get_loc(timestamp)
-    print(1)
+
+    print("step 2")
     # temp data set
     tmp_var_time = df.iloc[0, timestamp_idx]
     tmp_var_id = df.iloc[0, old_case_id_idx] + '_' + tmp_var_time.strftime('%Y%m%d %H:%M:%S')
-    print(2)
+
     # reference time set
     dt1 = datetime.datetime(1988, 9, 16, 0, 0, 0)
     dt2 = datetime.datetime(1988, 9, 16, 8, 0, 0)
     ref_time = dt2 - dt1
-    print(3)
+
     # find checking data
     check_list = df[checking_col].str.match(regex_var)
 
+    print("step 3")
     # new case insert
     flag = 0
-    for k in check_list:
-        print("processing... %d" % flag)
+    for k in tqdm(check_list):
         if k:
             if df.iloc[flag, timestamp_idx] - tmp_var_time > ref_time and \
                     df.iloc[flag, old_case_id_idx] == df.iloc[flag - 1, old_case_id_idx]:
@@ -158,7 +164,6 @@ def case_modeling_(df, old_case_id, new_case_id, checking_col, timestamp, regex_
             df.iloc[flag, new_case_id_idx] = tmp_var_id
         flag += 1
 
-    print(4)
     return df
 
 
@@ -174,7 +179,7 @@ def drop_certain_event_(df, checking_col, regex_var):
     check_list = df[checking_col].str.match(regex_var)
     del_list = list()
     flag = 0
-    for k in check_list:
+    for k in tqdm(check_list):
         if k:
             del_list.append(flag)
         flag += 1

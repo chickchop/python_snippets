@@ -1,12 +1,13 @@
 # coding=utf-8
 """
-시스템 간 분석을 위해 프로 디스커버리를 적용할 때 2 gb 이상의 대용량 log file을 조작하기 위한 모듈
+시스템 간 분석을 위해 프로 디스커버리를 적용할 때 2 gb 이상의 대용량 log file 을 조작하기 위한 모듈
 Created on 2018.06.25
 @author : adam ko
 """
 import csv
 from operator import itemgetter
 import datetime
+from tqdm import tqdm, trange
 
 
 def remove_duplicate_activity_(in_file, out_file, case_id, activity, timestamp, encoding='utf-8'):
@@ -40,7 +41,7 @@ def remove_duplicate_activity_(in_file, out_file, case_id, activity, timestamp, 
         fw = csv.writer(open(out_file, "w", newline='', encoding=encoding))
 
         k = 0
-        while k < len(df):
+        while k < tqdm(len(df)):
             if k <= 1 or \
                     k == len(df) - 1 or \
                     df[k][case_id_idx] != df[k - 1][case_id_idx] or \
