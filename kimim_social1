@@ -1,0 +1,285 @@
+library(reshape)
+library(igraph)
+library(networkD3)
+library(visNetwork)
+
+workRelate <- readxl::read_excel(path = "../etc/업무방식통일화_프로세스자산화_Activity List(Work간 연계정보 정리)_v1.05_20180709_DRM해제.xlsx", sheet = 1)
+
+workTemp <- work[!is.na(work$menu_id), ]
+workTemp <- work[work$menu_id != "", ]
+
+temp <- unique(workRelate$`L2(Work)`)
+workRelate <- workRelate[workRelate$`L2(Work)` %in% workTemp$work_name, ]
+temp <- temp[!temp %in% workRelate$`L2(Work)`]
+workRelate <- workRelate[!(workRelate$`L3(Activity)` %in% temp), ]
+
+workRelate <- workRelate[, c(3:4, 6:8)]
+for(i in 1:ncol(workRelate)) workRelate[[i]] <- trimws(workRelate[[i]], which = "both")
+workRelate$`선행 Work` <- gsub("[:():]", "", workRelate$`선행 Work`)
+workRelate$`중간 Work` <- gsub("[:():]", "", workRelate$`중간 Work`)
+workRelate$`후행 Work` <- gsub("[:():]", "", workRelate$`후행 Work`)
+
+workRelate <- workRelate[!(is.na(workRelate$`선행 Work`) & is.na(workRelate$`중간 Work`) & is.na(workRelate$`후행 Work`)), ]
+
+workRelate <- melt(as.data.frame(workRelate), id.vars = c("ID(L2)", "L2(Work)"))
+workRelate <- workRelate[!is.na(workRelate$value), ]
+workRelate$variable <- as.character(workRelate$variable)
+workRelate$value <- as.character(workRelate$value)
+
+workRelate <- left_join(workRelate, distinct(work[, c("work_id", "work_name")]), by = c("value" = "work_id"))
+
+workRelate1 <- workRelate[workRelate$variable == "선행 Work", c(1, 2, 4, 5)]
+workRelate2_1 <- workRelate[workRelate$variable == "중간 Work", c(1, 2, 4, 5)]
+workRelate2_2 <- workRelate[workRelate$variable == "중간 Work", c(1, 2, 4, 5)]
+workRelate3 <- workRelate[workRelate$variable == "후행 Work", c(1, 2, 4, 5)]
+
+colnames(workRelate1) <- c("target_idx", "targetWork", "source_idx" ,"sourceWork")
+colnames(workRelate2_1) <- c("target_idx", "targetWork", "source_idx" ,"sourceWork")
+colnames(workRelate2_2) <- c("source_idx" ,"sourceWork", "target_idx", "targetWork")
+colnames(workRelate3) <- c("source_idx" ,"sourceWork", "target_idx", "targetWork")
+
+workRelate1 <- workRelate1[, c("source_idx" ,"sourceWork", "target_idx", "targetWork")]
+workRelate2_1 <- workRelate2_1[, c("source_idx" ,"sourceWork", "target_idx", "targetWork")]
+workRelate2_2 <- workRelate2_1[, c("source_idx" ,"sourceWork", "target_idx", "targetWork")]
+workRelate3 <- workRelate3[, c("source_idx" ,"sourceWork", "target_idx", "targetWork")]
+
+workRelate <- rbind(workRelate1, workRelate2_1, workRelate2_2, workRelate3)
+workRelate <- distinct(workRelate)
+workRelate <- workRelate[!is.na(workRelate$targetWork), ]
+
+node <- rbind(data.frame("node" = workRelate$targetWork,
+                         "idx" = workRelate$target_idx),
+              data.frame("node" = workRelate$sourceWork,
+                         "idx" = workRelate$source_idx))
+node <- distinct(node)
+node$node <- as.character(node$node)
+
+workTemp <- distinct(work[, c("work_id", "work_name")])
+workTemp <- workTemp[workTemp$work_id %in% setdiff(workTemp$work_id, node$idx), ]
+node <- rbind(node, data.frame(node = workTemp$work_name,
+                               idx = workTemp$work_id))
+workRelate <- rbind(workRelate, data.frame(source_idx = workTemp$work_id,
+                                           sourceWork = workTemp$work_name,
+                                           target_idx = workTemp$work_id,
+                                           targetWork = workTemp$work_name))
+
+node$id <- node$idx
+node$id <- as.character(node$id)
+node$idx <- as.numeric(as.factor(node$idx)) - 1 
+node <- node[order(node$id, decreasing = T), ]
+
+for(i in 1:nrow(node)) workRelate$target_idx <- gsub(node$id[i], node$idx[i], workRelate$target_idx)
+for(i in 1:nrow(node)) workRelate$source_idx <- gsub(node$id[i], node$idx[i], workRelate$source_idx) 
+
+workRelate$target_idx <- as.numeric(workRelate$target_idx)
+workRelate$source_idx <- as.numeric(workRelate$source_idx)
+node <- node[order(node$idx), ]
+
+rm(workRelate1, workRelate2_1, workRelate2_2, workRelate3, workTemp)
+
+
+# create data:
+links = data.frame(
+  source = workRelate$sourceWork,
+  target = workRelate$targetWork,
+  importance = 1
+)
+
+
+workTemp <- data.frame(work_id = work[, c("work_id")])
+workTemp$work <- substr(workTemp$work_id, 1, 1)
+
+node <- left_join(node, distinct(workTemp), by = c("id" = "work_id"))
+
+nodes <- node
+nodes$id <- nodes$idx
+nodes$label <- nodes$node
+nodes$group <- nodes$work
+nodes$shape <- "circle"
+
+nodes <- nodes %>% arrange(group)
+
+edges <- workRelate
+edges$from <- edges$source_idx
+edges$to <- edges$target_idx
+
+
+visNetwork(nodes, edges, width = "1500px", height = "1500px") %>% 
+  visEdges(shadow = TRUE,
+           arrows =list(to = list(enabled = TRUE, scaleFactor = 1)),
+           color = list(color = "lightblue", highlight = "red")) %>%
+  visLegend(main = "Group", position = "right") %>%
+  visIgraphLayout()  %>% 
+  visOptions(highlightNearest = TRUE, nodesIdSelection = TRUE) %>% 
+  visSave(file = "../Result/network_제조1차_work.html")
+
+visConfigure(enabled = T)
+
+########### 삭제하면 기존 방법과 동일 
+
+log <- logPhoto1AnalysisCheckNa2 %>% filter(work_label2_graph != "조회" & !is.na(work_label2_graph))
+
+fromTo <- data.frame()
+caseTemp <- unique(log$case)
+
+for(i in 1:length(caseTemp)){
+  
+  if( i %% 100 == 0 ){
+    print(i)
+  }
+  
+  logTemp <- log %>% filter(case == caseTemp[i])
+  
+  worklabel <- unique(logTemp$work_label2_graph)
+  worklabel <- rep(worklabel, length(worklabel))
+  
+  fromToTemp <- data.frame(from = sort(worklabel),
+                           to = worklabel)
+  
+  fromTo <- bind_rows(fromTo, fromToTemp)
+  
+  rm(logTemp, worklabel, fromToTemp, i)
+  
+}
+
+rm(caseTemp)
+
+
+fromTo <- tbl_df(fromTo)
+fromTo2 <- fromTo
+
+totalCount <- fromTo %>% filter(from == to) %>% group_by(from) %>% count()
+colnames(totalCount) <- c("from", "sum")
+fromTo <- fromTo %>% filter(from != to) %>% group_by(from, to) %>% count()
+colnames(fromTo) <- c("from", "to", "count")
+fromTo <- left_join(fromTo, totalCount, by = "from")
+rm(totalCount)
+fromTo <- fromTo %>% arrange(from, desc(count))
+fromTo <- fromTo %>% mutate(ratio = count/sum)
+
+write.csv(fromTo, "../Data/fromTo.csv", row.names = F, fileEncoding = "EUC-KR")
+
+
+menuTemp <- distinct(logPhoto1[, c("menu_id", "L2_count")])
+menuTemp <- menuTemp %>% filter(!is.na(L2_count))
+
+w <- "Split Manual 평가"
+w <- "Reticle RD 검증"
+w <- "WT 이상 자재 분석 및 조치"
+w <- "Auto RUN Sample Test"
+w <- "계측 WIP 모니터링"
+w <- "Recipe 등록"
+w <- "Hold Release"
+w <- "RTS 운영관리(smartMMDM)"
+w <- "낱장 Sample Test"
+
+index <- nodes[nodes$label == w, "id"]
+edges2 <- edges[edges$from == index | edges$to == index, ]
+
+workTemp <- work[work$work_name %in% c(edges2$sourceWork, edges2$targetWork), c("menu_id", "menu_name", "work_name")]
+workTemp <- work[work$work_name %in% c("Monitoring TEM", "Wafer Scrap 처리"), c("menu_id", "menu_name", "work_name")]
+workTemp <- workTemp[workTemp$menu_id != "", ]
+workTemp <- left_join(workTemp, menuTemp, by = "menu_id")
+dat <- logPhoto1AnalysisCheckNa2 %>% filter(menu_id %in% workTemp$menu_id)
+dat <- data.frame(table(dat$menu_id))
+colnames(dat) <- c("menu_id", "count")
+dat <- left_join(dat, workTemp, by = "menu_id")
+dat <- dat[, c(4, 3, 1, 2, 5)]
+(dat <- dat %>% arrange(work_name, desc(count)))
+
+visNetwork(nodes, edges2, width = "1500px", height = "1500px") %>% 
+  visEdges(shadow = TRUE,
+           arrows =list(to = list(enabled = TRUE, scaleFactor = 1)),
+           color = list(color = "lightblue", highlight = "red")) %>%
+  visLegend(main = "Group", position = "right") %>%
+  visOptions(highlightNearest = TRUE, nodesIdSelection = TRUE) %>%
+  visIgraphLayout()
+
+
+
+
+###########
+workTemp <- work[, c("work_name", "menu_id")]
+workTemp <- workTemp[workTemp$menu_id != "", ]
+workTemp <- distinct(workTemp)
+workTemp <- tapply(workTemp$work_name, workTemp$menu_id, length)
+workTemp <- data.frame(menu_id = names(workTemp),
+                       count = workTemp)
+rownames(workTemp) <- 1:nrow(workTemp)
+
+logPhoto1AnalysisCheckNa2 <- left_join(logPhoto1AnalysisCheckNa2, workTemp, by = "menu_id")
+logPhoto1AnalysisCheckNa2 <- logPhoto1AnalysisCheckNa2 %>% arrange(case, log_timekey)
+
+rm(workTemp)
+
+edges2 <- data.frame(from = c(logPhoto1AnalysisCheckNa2$work_label2_graph[1], logPhoto1AnalysisCheckNa2$work_label2_graph[-nrow(logPhoto1AnalysisCheckNa2)]),
+                     to = logPhoto1AnalysisCheckNa2$work_label2_graph,
+                     fromCount = c(logPhoto1AnalysisCheckNa2$count[1], logPhoto1AnalysisCheckNa2$count[-nrow(logPhoto1AnalysisCheckNa2)]),
+                     toCount = logPhoto1AnalysisCheckNa2$count)
+edges2 <- tbl_df(edges2)  
+edges2 <- edges2 %>% group_by(from, to, fromCount, toCount) %>% summarise(count = length(from)) %>% arrange(from, desc(count))
+edgesTemp <- edges2 %>% group_by(from) %>% summarise(sum = sum(count))
+edges2 <- left_join(edges2, edgesTemp, by = "from")
+edges2$ratio <- round(edges2$count/edges2$sum, 2)
+edges2 <- edges2[!is.na(edges2$from), ]
+edges2 <- edges2[!is.na(edges2$to), ]
+edges2 <- edges2[edges2$from != "조회" & edges2$to != "조회", ]
+edges2 <- tbl_df(data.frame(edges2))
+
+rm(edgesTemp)
+
+nodes2 <- data.frame(label = sort(unique(c(as.character(edges2$from), as.character(edges2$to)))))
+nodes2$id = 1:nrow(nodes2)
+nodes2$shape = "circle"
+nodes2 <- left_join(nodes2, nodes[, c("group", "label")], by = "label")
+nodes2 <- nodes2[nodes2$label != "조회", ]
+nodes2 <- nodes2 %>% arrange(group)
+nodes2$id <- 1:nrow(nodes2)
+
+edges2 <- left_join(edges2, nodes2[, c("label", "id")], by = c("from" = "label"))
+edges2 <- left_join(edges2, nodes2[, c("label", "id")], by = c("to" = "label"))
+edges2$from <- edges2$id.x
+edges2$to <- edges2$id.y
+edges2$id.x <- NULL
+edges2$id.y <- NULL
+
+
+edges3 <- edges2[edges2$count >= 100 & edges2$ratio >= 0.05, ]
+edges3$label <- edges3$ratio
+nodes3 <- nodes2[nodes2$id %in% c(edges3$from, edges3$to), ]
+nodes3 <- nodes3 %>% arrange(group)
+## ratio나 count로 제거
+
+visNetwork(nodes3, edges3, width = "1500px", height = "1500px") %>% 
+  visEdges(shadow = TRUE,
+           arrows =list(to = list(enabled = TRUE, scaleFactor = 1)),
+           color = list(color = "lightblue", highlight = "red")) %>%
+  visLegend(main = "Group", position = "right") %>%
+  visOptions(highlightNearest = TRUE, nodesIdSelection = TRUE) %>%
+  visIgraphLayout()
+  visSave(file = "../Result/network_log_work.html")
+
+
+####
+
+index <- nodes3[nodes3$label == "실험 및 검증", "id"]
+index <- nodes3[nodes3$label == "공정조치", "id"]
+index <- nodes3[nodes3$label == "수율 관리", "id"]
+edges4 <- edges3[edges3$from == index | edges3$to == index, ]
+
+visNetwork(nodes3, edges4, width = "1500px", height = "1500px") %>% 
+  visEdges(shadow = TRUE,
+           arrows =list(to = list(enabled = TRUE, scaleFactor = 1)),
+           color = list(color = "lightblue", highlight = "red")) %>%
+  visLegend(main = "Group", position = "right") %>%
+  visOptions(highlightNearest = TRUE, nodesIdSelection = TRUE) %>%
+  visIgraphLayout()
+
+
+###### 통계표
+
+edges3
+
+
+sss
+
