@@ -1,3 +1,13 @@
+# coding=utf-8
+"""
+Puzzle Data
+
+Created on 2018.07.11
+@author : adam ko
+
+파일 조작 스크립트
+"""
+
 import glob
 import os
 

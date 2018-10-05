@@ -1,8 +1,11 @@
 # coding=utf-8
 """
-시스템 간 분석을 위해 프로 디스커버리를 적용할 때 2 gb 이상의 대용량 log file 을 조작하기 위한 모듈
+Puzzle Data
+
 Created on 2018.06.25
 @author : adam ko
+
+시스템 간 분석을 위해 프로 디스커버리를 적용할 때 2 gb 이상의 대용량 log file 을 조작하기 위한 모듈
 """
 import csv
 from operator import itemgetter
@@ -61,8 +64,8 @@ def case_modeling_(df, old_case_id, new_case_id, checking_col, timestamp, regex_
     :param new_case_id : string /   / 새로 작성될 case id 컬럼 명
     :param checking_col : string /    / case를 나누기 위한 log 데이터 컬럼 명
     :param timestamp : string /    / timestamp 컬럼 명
-    :param regex_var : string / r"(.*FxApp)|(.*InitApp)" / checking_col column의 log중 case를 구별 할 수 있는 log를 찾아내기 위한 정규 표현식
-    :return df : DataFrame /      / case modeling이 완료된 데이터 프레임
+    :param regex_var : string / r"(.*FxApp)|(.*InitApp)" / checking_col column의 log중 case를 구별 할 수 있는 log 를 찾아내기 위한 정규 표현식
+    :return df : DataFrame /      / case modeling 이 완료된 데이터 프레임
     """
     # data import and sort
     df[new_case_id] = " "

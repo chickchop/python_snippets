@@ -1,8 +1,11 @@
 # coding=utf-8
 """
-csv 파일 형태의 log 데이터를 조작하기 위한 함수 모듈
+Puzzle Data
+
 Created on 2018.07.11
 @author : adam ko
+
+csv 파일 형태의 log 데이터를 조작하기 위한 함수 모듈
 """
 import glob
 import os

@@ -1,8 +1,12 @@
 # coding=utf-8
 """
-시스템 간 분석을 위해 프로 디스커버리를 적용할 때 대용량 log file 을 조작하기 위한 모듈
+Puzzle Data
+
 Created on 2018.02.14
 @author : adam ko
+
+시스템 간 분석을 위해 프로 디스커버리를 적용할 때 대용량 log file 을 조작하기 위한 모듈
+
 """
 import csv
 import datetime
