@@ -30,15 +30,16 @@ def remove_duplicate_activity_(df, case_id, timestamp, activity):
     k = 1
     print("step 2")
     while k < len(df):
-        if df[case_id].iloc[k] == df[case_id].iloc[k - 1]:
-            if df[activity].iloc[k] == df[activity].iloc[k - 1]:
-                if df[activity].iloc[k] == df[activity].iloc[k + 1]:
-                    pass
-                else:
-                    drop_list.append(df.index[k])
-
+        if k <= 1 or \
+                k == len(df) - 1 or \
+                df[case_id].iloc[k] != df[case_id].iloc[k - 1] or \
+                df[activity].iloc[k] != df[activity].iloc[k - 1] or \
+                df[case_id].iloc[k] != df[case_id].iloc[k + 1]:
+            pass
+        else:
+            drop_list.append(df.index[k])
         k = k + 1
-        print("")
+    print("step3")
     df.drop(drop_list, inplace=True)
 
     return df
